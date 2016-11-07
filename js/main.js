@@ -44,6 +44,33 @@ function init(){
       text.textBaseline = "alphabetic";
       GAME.stage.addChild(text)
       init = false
+
+      if (GAME.gameMap.drawGrid) {
+        GAME.gameMap.gridlines.map(line => GAME.stage.removeChild(line))
+        GAME.gameMap.gridlines = []
+        for (var i = 0; i < GAME.gameMap.tileW; i++) {
+          var line = new createjs.Shape()
+          line.graphics
+            .setStrokeStyle(0.5)
+            .beginStroke("grey")
+            .beginFill("grey")
+            .moveTo(i*GAME.tileSize,0)
+            .lineTo(i*GAME.tileSize,GAME.gameMap.tileH*GAME.tileSize)
+          GAME.gameMap.gridlines.push(line)
+          GAME.stage.addChild(line)
+        }
+        for (var i = 0; i < GAME.gameMap.tileH; i++) {
+          var line = new createjs.Shape()
+          line.graphics
+            .setStrokeStyle(0.5)
+            .beginStroke("grey")
+            .beginFill("grey")
+            .moveTo(0,i*GAME.tileSize)
+            .lineTo(GAME.gameMap.tileW*GAME.tileSize,i*GAME.tileSize)
+          GAME.gameMap.gridlines.push(line)
+          GAME.stage.addChild(line)
+        }
+      }
       //
       seconds = e.delta/1000.0
       GAME.objects.map(o => o.update(seconds)) // il parcourt tous les objets du jeu et les update

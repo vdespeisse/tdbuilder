@@ -3,7 +3,7 @@ class Camera extends createjs.Rectangle {
     super(x,y,w,h)
     this.game= game
     this.moving = {}
-    this.speed = 5
+    this.speed = 3
   }
   move(dir){
     this.moving[dir] = true
@@ -12,7 +12,7 @@ class Camera extends createjs.Rectangle {
     this.moving[dir] = false
   }
   update(){
-  
+
     if (this.moving.up) this.y = (this.y - this.speed <= 0) ? 0 : this.y - this.speed
     if (this.moving.down) this.y = (this.y + this.speed >= this.game.gameMap.height - this.height) ?
         this.game.gameMap.height - this.height : this.y + this.speed
@@ -139,28 +139,10 @@ class Map {
     this.navgrid = Array.apply(null, {length: w}).map(d => Array.apply(null, {length: h}).map(d => 0))
     this.width = w*GAME.tileSize
     this.height = h*GAME.tileSize
-    if (options.drawGrid) {
-      for (var i = 0; i < w; i++) {
-        var line = new createjs.Shape()
-        line.graphics
-          .setStrokeStyle(1)
-          .beginStroke("grey")
-          .beginFill("grey")
-          .moveTo(i*GAME.tileSize,0)
-          .lineTo(i*GAME.tileSize,h*GAME.tileSize)
-        GAME.stage.addChild(line)
-      }
-      for (var i = 0; i < h; i++) {
-        var line = new createjs.Shape()
-        line.graphics
-          .setStrokeStyle(1)
-          .beginStroke("grey")
-          .beginFill("grey")
-          .moveTo(0,i*GAME.tileSize)
-          .lineTo(w*GAME.tileSize,i*GAME.tileSize)
-        GAME.stage.addChild(line)
-      }
-    }
+    this.tileW = w
+    this.tileH = h
+    this.drawGrid = options.drawGrid
+    this.gridlines = []
 
   }
   add(object){
