@@ -34,13 +34,19 @@ class Game { // c'est une classe game c'est lengine en gros qui vas gerer toutes
       canvas.width = w;
       canvas.height = h;
       document.body.appendChild(canvas)
-      this.tileSize = parseInt(w/80)
+      this.tileSize = parseInt(w/40)
       this.stage = new createjs.Stage(canvas)
       this.canvas = this.stage.canvas //canvas c'est lobjet html qui contient l'écran de jeu
       this.camera = new Camera(0,0,w,h,this)
+      this.pathfinder = new EasyStar.js()
     }
     loadMap(gameMap) {
       this.gameMap = gameMap
+      this.pathfinder.setGrid(this.gameMap.navgrid)
+      this.pathfinder.setAcceptableTiles([0])
+    }
+    updateNav(){
+      this.pathfinder.setGrid(this.gameMap.navgrid)
     }
     add(object) { // a chaque fois qu'un objet s'initialise il va s'ajouter a l'engine avec cette fonction
         object.id = this.ids
@@ -56,13 +62,16 @@ class Game { // c'est une classe game c'est lengine en gros qui vas gerer toutes
 GAME = new Game()
 
 class GameObject {
-  constructor(x =0 ,y = 0,w =10,h=10, options){
-    if (options.tileSize) {
+  constructor(x =0 ,y = 0,w =10,h=10, options={}){
+    x/=2
+    y/=2
+    if (options.tiled) {
       x *= GAME.tileSize
       y *= GAME.tileSize
       w *= GAME.tileSize
       h *= GAME.tileSize
     }
+
     if (options.image) this.sprite = new createjs.Bitmap(images[options.image])
     else { var color = (options.color) ? options.color : "black"
       this.sprite =  new createjs.Shape()
@@ -77,6 +86,7 @@ class GameObject {
     this.game.remove(this)
   }
   update(seconds){
+    // console.log(this.rect.x)
     this.sprite.x = this.rect.x - this.game.camera.x
     this.sprite.y = this.rect.y - this.game.camera.y
   }
@@ -122,11 +132,10 @@ class MovingObject extends GameObject {
 
 class Building extends GameObject {
   constructor(tileX,tileY,tileW=4,tileH=4,options={}){
-    options.tileSize = true
+    options.tiled = true
     super(tileX,tileY,tileW,tileH,options)
     this.tileRect = new createjs.Rectangle(tileX,tileY,tileW,tileH)
-    this.walkable = (options.walkable) ? options.walkable : false
-    console.log(this.tileRect)
+    this.walkable = (options.walkable) ? options.walkable : 1
     this.game.gameMap.add(this)
 
   }
@@ -134,7 +143,7 @@ class Building extends GameObject {
 }
 
 class Map {
-  constructor(w,h, options){
+  constructor(w,h, options={}){
     this.grid = Array.apply(null, {length: w}).map(d => Array.apply(null, {length: h}).map(d => 0))
     this.navgrid = Array.apply(null, {length: w}).map(d => Array.apply(null, {length: h}).map(d => 0))
     this.width = w*GAME.tileSize
@@ -150,8 +159,16 @@ class Map {
     for (var i = object.tileRect.x; i < object.tileRect.x+object.tileRect.width; i++) {
       for (var j = object.tileRect.y; j < object.tileRect.y+object.tileRect.height; j++) {
         this.grid[i][j] = object
-        this.navgrid[i][j] = object.walkable
+        this.navgrid[j][i] = object.walkable
       }
     }
+    GAME.updateNav()
+  }
+  findTile(stageX,stageY){
+    var mapX = stageX +GAME.camera.x
+    var mapY = stageY +GAME.camera.y
+    var tileX = Math.floor(mapX/GAME.tileSize)
+    var tileY = Math.floor(mapY/GAME.tileSize)
+    return new createjs.Point(tileX,tileY)
   }
 }
