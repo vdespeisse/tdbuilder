@@ -54,8 +54,8 @@ function init(){
             .setStrokeStyle(0.5)
             .beginStroke("grey")
             .beginFill("grey")
-            .moveTo(i*GAME.tileSize,0)
-            .lineTo(i*GAME.tileSize,GAME.gameMap.tileH*GAME.tileSize)
+            .moveTo(i*GAME.tileSize-GAME.camera.x,0)
+            .lineTo(i*GAME.tileSize-GAME.camera.x,GAME.gameMap.tileH*GAME.tileSize)
           GAME.gameMap.gridlines.push(line)
           GAME.stage.addChild(line)
         }
@@ -65,8 +65,8 @@ function init(){
             .setStrokeStyle(0.5)
             .beginStroke("grey")
             .beginFill("grey")
-            .moveTo(0,i*GAME.tileSize)
-            .lineTo(GAME.gameMap.tileW*GAME.tileSize,i*GAME.tileSize)
+            .moveTo(0,i*GAME.tileSize-GAME.camera.y)
+            .lineTo(GAME.gameMap.tileW*GAME.tileSize,i*GAME.tileSize-GAME.camera.y)
           GAME.gameMap.gridlines.push(line)
           GAME.stage.addChild(line)
         }
