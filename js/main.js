@@ -31,7 +31,9 @@ function init() {
     console.log(testMap)
     GAME.loadMap(testMap)
     testBuilding = new Building(2, 2, 4, 4)
-    hm = new Building(6, 2, 4, 1)
+    hm = new Building(6, 2, 4, 0.25)
+    dude = new Unit(0,0,10,10,{speed : 5})
+    // dude.target = new createjs.Point(1000,700)
         // what = new GameObject(0,0,20,20,{color:'blue'})
         // thefuck = new GameObject(20,20,40,40)
         // srsly = new GameObject(40,40,20,20,{color:'green'})
@@ -131,19 +133,22 @@ function init() {
     }
     var pathObjects = []
     function handleMouseDown(mouseEvent) {
-        console.log(mouseEvent.nativeEvent.button)
 
-        window.p = pathObjects
+
+        var mapX = mouseEvent.stageX +GAME.camera.x
+        var mapY = mouseEvent.stageY +GAME.camera.y
         // new GameObject(mouseEvent.stageX+GAME.camera.x,mouseEvent.stageY+GAME.camera.y,20,20,{color : "red"})
-        dest = GAME.gameMap.findTile(mouseEvent.stageX, mouseEvent.stageY)
+        dest = GAME.gameMap.findTile(mapX,mapY)
         if (mouseEvent.nativeEvent.button === 2){
 
         pathObjects.map(o => o.kill())
         pathObjects = []
-        GAME.pathfinder.findPath(0, 0, dest.x, dest.y, (path) => {
-            if (!path) return
-            path.map(d => pathObjects.push(square =new GameObject(d.x, d.y, 1, 1, {tiled: true,color: "green"})))
-          })
+        dude.goTo(dest.x,dest.y)
+        // GAME.pathfinder.findPath(0, 0, dest.x, dest.y, (path) => {
+        //     if (!path) return
+        //     window.p = path
+        //     path.map(d => pathObjects.push(square =new GameObject(d.x, d.y, 1, 1, {tiled: true,color: "green"})))
+        //   })
         }
         if (mouseEvent.nativeEvent.button === 0){
           new Building(dest.x,dest.y,1,1)

@@ -44,6 +44,7 @@ class Game { // c'est une classe game c'est lengine en gros qui vas gerer toutes
       this.gameMap = gameMap
       this.pathfinder.setGrid(this.gameMap.navgrid)
       this.pathfinder.setAcceptableTiles([0])
+      this.pathfinder.enableDiagonals()
     }
     updateNav(){
       this.pathfinder.setGrid(this.gameMap.navgrid)
@@ -81,6 +82,7 @@ class GameObject {
     this.game.add(this)
     this.image = options.image
     this.rect = (options.sizeAuto) ? this.sprite.getTransformedBounds() : new createjs.Rectangle(x,y,w,h)
+    this.tile = this.game.gameMap.findTile(this.rect.x,this.rect.y)
   }
   kill(){
     this.game.remove(this)
@@ -99,8 +101,9 @@ class MovingObject extends GameObject {
     this._moving = false
     this.target = this.rect
   }
-  set target(rect){
-    this._target = rect
+  set target(point){
+    this._target = point
+    this._vector = normalize([this._target.x-this.rect.x, this._target.y-this.rect.y])
     this._moving = true
   }
   get target() {
@@ -121,10 +124,10 @@ class MovingObject extends GameObject {
         this.rect.x = this._target.x
         this.rect.y = this._target.y
       } else {
-      var vector = normalize([this._target.x-this.rect.x, this._target.y-this.rect.y])
-      this.rect.x += vector.x*this._speed
-      this.rect.y += vector.y*this._speed
+      this.rect.x += this._vector.x*this._speed
+      this.rect.y += this._vector.y*this._speed
       }
+      this.tile = this.game.gameMap.findTile(this.rect.x,this.rect.y)
     }
     super.update(seconds)
   }
@@ -164,11 +167,12 @@ class Map {
     }
     GAME.updateNav()
   }
-  findTile(stageX,stageY){
-    var mapX = stageX +GAME.camera.x
-    var mapY = stageY +GAME.camera.y
+  findTile(mapX,mapY){
     var tileX = Math.floor(mapX/GAME.tileSize)
     var tileY = Math.floor(mapY/GAME.tileSize)
     return new createjs.Point(tileX,tileY)
+  }
+  findPos(tileX,tileY){
+    return new createjs.Point(tileX*GAME.tileSize,tileY*GAME.tileSize)
   }
 }
