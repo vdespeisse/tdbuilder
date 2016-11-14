@@ -4,7 +4,7 @@ loader.on("complete", handleComplete);
 
 loader.loadManifest([{
     id: "bunny",
-    src: "./assets/bunny.png"
+    src: "./assets/bunny_small.png"
 }, {
     id: "bullet",
     src: "./assets/bullet_black.png"
@@ -32,7 +32,9 @@ function init() {
     GAME.loadMap(testMap)
     testBuilding = new Building(2, 2, 4, 4)
     hm = new Building(6, 2, 4, 0.25)
-    dude = new Unit(0,0,10,10,{speed : 5})
+    dude = new Unit(1,1,1,1,{speed : 5, tiled : true, image : "bunny"})
+    baddude = new Enemy(200,200,10,10, {speed : 4, target : dude})
+    spawner = new Spawner(30,30, Enemy, {unitOptions : {speed : 4, target : dude, tiled : true, color : 'red'}})
     // dude.target = new createjs.Point(1000,700)
         // what = new GameObject(0,0,20,20,{color:'blue'})
         // thefuck = new GameObject(20,20,40,40)
@@ -140,10 +142,10 @@ function init() {
         // new GameObject(mouseEvent.stageX+GAME.camera.x,mouseEvent.stageY+GAME.camera.y,20,20,{color : "red"})
         dest = GAME.gameMap.findTile(mapX,mapY)
         if (mouseEvent.nativeEvent.button === 2){
-
+        console.log(dest)
         pathObjects.map(o => o.kill())
         pathObjects = []
-        dude.goTo(dest.x,dest.y)
+        dude.goTo(dest)
         // GAME.pathfinder.findPath(0, 0, dest.x, dest.y, (path) => {
         //     if (!path) return
         //     window.p = path

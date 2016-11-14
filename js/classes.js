@@ -45,6 +45,7 @@ class Game { // c'est une classe game c'est lengine en gros qui vas gerer toutes
       this.pathfinder.setGrid(this.gameMap.navgrid)
       this.pathfinder.setAcceptableTiles([0])
       this.pathfinder.enableDiagonals()
+      this.pathfinder.setIterationsPerCalculation(1000) //Not sure if needed
     }
     updateNav(){
       this.pathfinder.setGrid(this.gameMap.navgrid)
@@ -64,8 +65,8 @@ GAME = new Game()
 
 class GameObject {
   constructor(x =0 ,y = 0,w =10,h=10, options={}){
-    x/=2
-    y/=2
+    // x/=2
+    // y/=2
     if (options.tiled) {
       x *= GAME.tileSize
       y *= GAME.tileSize
@@ -76,13 +77,16 @@ class GameObject {
     if (options.image) this.sprite = new createjs.Bitmap(images[options.image])
     else { var color = (options.color) ? options.color : "black"
       this.sprite =  new createjs.Shape()
-      this.sprite.graphics.beginFill(color).drawRect(x,y,w,h)
+      this.sprite.graphics.beginFill(color).moveTo(x,y).drawRect(0,0,w,h)
     }
     this.game = GAME
     this.game.add(this)
     this.image = options.image
     this.rect = (options.sizeAuto) ? this.sprite.getTransformedBounds() : new createjs.Rectangle(x,y,w,h)
     this.tile = this.game.gameMap.findTile(this.rect.x,this.rect.y)
+    this.sprite.x = this.rect.x - this.game.camera.x
+    this.sprite.y = this.rect.y - this.game.camera.y
+
   }
   kill(){
     this.game.remove(this)
@@ -99,15 +103,15 @@ class MovingObject extends GameObject {
     super(x,y,w,h,options)
     this.speed = (options.speed) ? options.speed : 0
     this._moving = false
-    this.target = this.rect
+    this.targetPos = this.rect
   }
-  set target(point){
-    this._target = point
-    this._vector = normalize([this._target.x-this.rect.x, this._target.y-this.rect.y])
+  set targetPos(point){
+    this._targetPos = point
+    this._vector = normalize([this._targetPos.x-this.rect.x, this._targetPos.y-this.rect.y])
     this._moving = true
   }
-  get target() {
-    return this._target
+  get targetPos() {
+    return this._targetPos
   }
   set speed(val) {
       this._speed = val
@@ -118,11 +122,11 @@ class MovingObject extends GameObject {
   }
   update(seconds){
     if (this._moving) {
-      var dist = distance(this._target, this.rect)
+      var dist = distance(this._targetPos, this.rect)
       if (dist <= this._maxStep) {
         this._moving = false
-        this.rect.x = this._target.x
-        this.rect.y = this._target.y
+        this.rect.x = this._targetPos.x
+        this.rect.y = this._targetPos.y
       } else {
       this.rect.x += this._vector.x*this._speed
       this.rect.y += this._vector.y*this._speed
